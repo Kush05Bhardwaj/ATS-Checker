@@ -1,0 +1,45 @@
+# ── Python / Backend ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+backend/venv/
+backend/.venv/
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+backend/.env
+
+# spaCy models downloaded at runtime
+backend/models_cache/
+
+# ── Node / Frontend ───────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# ── OS / Editor ───────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# ── Misc ──────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak
