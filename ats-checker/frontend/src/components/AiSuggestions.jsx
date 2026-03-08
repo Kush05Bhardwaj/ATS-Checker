@@ -17,7 +17,7 @@ export default function AISuggestions({ suggestions }) {
           className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
           style={{ background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.25)' }}
         >
-          ðŸ¤–
+          {String.fromCodePoint(0x1F916)}
         </div>
         <div>
           <h3 className="text-sm font-semibold text-white leading-none">AI-Powered Suggestions</h3>

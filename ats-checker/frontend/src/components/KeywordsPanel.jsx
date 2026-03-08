@@ -6,11 +6,10 @@ export default function KeywordsPanel({ matched, missing }) {
 
   return (
     <div>
-      {/* Tabs */}
       <div className="flex gap-2 mb-5">
         {[
-          { id: 'matched', label: `Matched`,  count: matched.length, color: '#6ee7b7' },
-          { id: 'missing', label: `Missing`,  count: missing.length, color: '#f87171' },
+          { id: 'matched', label: 'Matched', count: matched.length, color: '#6ee7b7' },
+          { id: 'missing', label: 'Missing', count: missing.length, color: '#f87171' },
         ].map(t => (
           <button
             key={t.id}
@@ -35,7 +34,6 @@ export default function KeywordsPanel({ matched, missing }) {
         ))}
       </div>
 
-      {/* Matched */}
       {tab === 'matched' && (
         <div>
           {matched.length === 0 ? (
@@ -48,20 +46,20 @@ export default function KeywordsPanel({ matched, missing }) {
                 return (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
                     style={{
                       background: 'rgba(110,231,183,0.08)',
                       color: '#6ee7b7',
                       border: '1px solid rgba(110,231,183,0.2)',
                     }}
-                    title={`Importance: ${kw.importance} Â· ${freq}Ã— in resume`}
+                    title={`Importance: ${kw.importance} - ${freq}x in resume`}
                   >
                     {word}
                     <span
                       className="font-code text-[10px] px-1 rounded"
                       style={{ background: 'rgba(110,231,183,0.15)', color: '#6ee7b7' }}
                     >
-                      Ã—{freq}
+                      x{freq}
                     </span>
                   </span>
                 )
@@ -71,12 +69,11 @@ export default function KeywordsPanel({ matched, missing }) {
         </div>
       )}
 
-      {/* Missing */}
       {tab === 'missing' && (
         <div>
           {missing.length === 0 ? (
             <div className="flex flex-col items-center py-8 gap-2">
-              <span className="text-3xl">ðŸŽ‰</span>
+              <span className="text-3xl">{String.fromCodePoint(0x1F389)}</span>
               <p className="text-slate-400 text-sm font-medium">All key terms are covered!</p>
             </div>
           ) : (
@@ -97,7 +94,7 @@ export default function KeywordsPanel({ matched, missing }) {
                 ))}
               </div>
               <p className="text-slate-500 text-xs mt-4 leading-relaxed">
-                ðŸ’¡ Naturally incorporate these terms from the job description into your resume for a higher score.
+                {String.fromCodePoint(0x1F4A1)} Naturally incorporate these terms from the job description into your resume for a higher score.
               </p>
             </>
           )}
@@ -106,5 +103,3 @@ export default function KeywordsPanel({ matched, missing }) {
     </div>
   )
 }
-
-

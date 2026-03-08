@@ -2,13 +2,12 @@
 import React from 'react'
 
 export default function SectionsPanel({ sections }) {
-  const found    = sections.filter(s => s.found).length
-  const total    = sections.length
-  const pct      = Math.round((found / total) * 100)
+  const found = sections.filter(s => s.found).length
+  const total = sections.length
+  const pct   = Math.round((found / total) * 100)
 
   return (
     <div>
-      {/* Progress summary */}
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs text-slate-500">
           <span className="text-white font-semibold font-code">{found}/{total}</span> sections present
@@ -17,7 +16,7 @@ export default function SectionsPanel({ sections }) {
           className="text-xs font-bold font-code px-2 py-0.5 rounded-md"
           style={{
             background: pct >= 80 ? 'rgba(110,231,183,0.1)' : pct >= 50 ? 'rgba(251,191,36,0.1)' : 'rgba(248,113,113,0.1)',
-            color:      pct >= 80 ? '#6ee7b7'               : pct >= 50 ? '#fbbf24'               : '#f87171',
+            color:      pct >= 80 ? '#6ee7b7' : pct >= 50 ? '#fbbf24' : '#f87171',
           }}
         >
           {pct}%
@@ -28,7 +27,11 @@ export default function SectionsPanel({ sections }) {
           className="h-full rounded-full transition-all duration-700"
           style={{
             width: `${pct}%`,
-            background: pct >= 80 ? 'linear-gradient(90deg,#6ee7b7cc,#6ee7b7)' : pct >= 50 ? 'linear-gradient(90deg,#fbbf24cc,#fbbf24)' : 'linear-gradient(90deg,#f87171cc,#f87171)',
+            background: pct >= 80
+              ? 'linear-gradient(90deg,#6ee7b7cc,#6ee7b7)'
+              : pct >= 50
+              ? 'linear-gradient(90deg,#fbbf24cc,#fbbf24)'
+              : 'linear-gradient(90deg,#f87171cc,#f87171)',
           }}
         />
       </div>
@@ -44,16 +47,13 @@ export default function SectionsPanel({ sections }) {
             }}
           >
             <div className="flex items-center gap-2">
-              <span className="text-xs">{s.found ? 'âœ…' : 'âŒ'}</span>
-              <span
-                className="text-xs font-semibold"
-                style={{ color: s.found ? '#6ee7b7' : '#f87171' }}
-              >
+              <span className="text-sm">{s.found ? '\u2705' : '\u274C'}</span>
+              <span className="text-xs font-semibold" style={{ color: s.found ? '#6ee7b7' : '#f87171' }}>
                 {s.name}
               </span>
             </div>
             {!s.found && s.tip && (
-              <p className="text-[10px] text-slate-500 leading-relaxed mt-1.5 pl-5">{s.tip}</p>
+              <p className="text-[10px] text-slate-500 leading-relaxed mt-1.5 pl-6">{s.tip}</p>
             )}
           </div>
         ))}
