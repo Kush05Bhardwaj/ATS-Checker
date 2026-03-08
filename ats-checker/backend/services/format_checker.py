@@ -119,7 +119,7 @@ def analyze_format(
         penalty += 5
 
     #  Special bullets 
-    special_bullets = re.findall(r'[]', resume_text)
+    special_bullets = re.findall(r'[★✓✗►▶◆●•❖■□▪▫→]', resume_text)
     if len(special_bullets) > 5:
         issues.append({
             "issue": "Special Unicode bullet characters found",
