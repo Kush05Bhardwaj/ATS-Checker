@@ -417,21 +417,3 @@ export default function App() {
     </div>
   )
 }
-
-
-function Card({ children, className = '' }) {
-  return (
-    <div
-      className={`rounded-2xl border p-4 sm:p-5 w-full ${className}`}
-      style={{ borderColor: '#1e1e2e', background: '#111118' }}
-    >
-      {children}
-    </div>
-  )
-}
-
-function SectionTitle({ children }) {
-  return (
-    <h3 className="font-mono font-bold text-xs text-slate-500 uppercase tracking-widest mb-4">
-      {children}
-    </h3>
