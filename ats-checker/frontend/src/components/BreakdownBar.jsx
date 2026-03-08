@@ -31,7 +31,7 @@ export default function BreakdownBar({ breakdown }) {
         const color = getBarColor(value)
         return (
           <div key={key}>
-            <div className="flex justify-between items-center mb-1">
+            <div className="flex flex-wrap justify-between items-center mb-1 gap-1">
               <span className="text-xs text-slate-400 font-sans">
                 {LABELS[key]}
                 <span className="text-slate-600 ml-1 font-mono text-[10px]">

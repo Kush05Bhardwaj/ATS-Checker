@@ -53,7 +53,7 @@ Example: ["suggestion 1", "suggestion 2", "suggestion 3", "suggestion 4", "sugge
 """
 
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-3-5-sonnet-20241022",
             max_tokens=800,
             messages=[{"role": "user", "content": prompt}]
         )

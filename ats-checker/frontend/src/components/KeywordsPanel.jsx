@@ -18,7 +18,7 @@ export default function KeywordsPanel({ matched, missing }) {
   return (
     <div>
       {/* Tab switcher */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 flex-wrap">
         {tabs.map(t => (
           <button
             key={t.id}
@@ -51,7 +51,7 @@ export default function KeywordsPanel({ matched, missing }) {
               }}
               title={`Importance: ${kw.importance} | Freq: ${kw.frequency}x`}
             >
-              {kw.keyword}
+              {String(kw.keyword).replace(/\+/g, ' ')}
               <span className="ml-1 opacity-50">×{kw.frequency}</span>
             </span>
           ))}
@@ -75,7 +75,7 @@ export default function KeywordsPanel({ matched, missing }) {
                   border: '1px solid #f8717130',
                 }}
               >
-                {kw}
+                {String(kw).replace(/\+/g, ' ')}
               </span>
             ))}
           </div>

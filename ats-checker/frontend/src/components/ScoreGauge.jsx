@@ -42,8 +42,8 @@ export default function ScoreGauge({ score, label }) {
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <div className="relative w-40 h-40">
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+      <div className="relative" style={{ width: 160, height: 160, flexShrink: 0 }}>
+        <svg width="160" height="160" className="-rotate-90" viewBox="0 0 100 100">
           {/* Track */}
           <circle
             cx="50" cy="50" r={RADIUS}

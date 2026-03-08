@@ -1,15 +1,17 @@
-"""
+﻿"""
 models/schemas.py
 All Pydantic request/response models for the API
 """
 
 from pydantic import BaseModel
-from typing import List, Optional, Dict
+from typing import List, Optional
 
 
 class AnalyzeRequest(BaseModel):
     job_description: str
-    use_ai_suggestions: bool = False  # Set True if Anthropic API key is set
+    use_ai_suggestions: bool = False
+    experience_level: str = "mid"   # "fresher" | "mid" | "senior" | "executive"
+    resume_pages: int = 1           # 1 | 2 | 3
 
 
 class KeywordMatch(BaseModel):
@@ -33,16 +35,16 @@ class FormatIssue(BaseModel):
 
 
 class ScoreBreakdown(BaseModel):
-    keyword_match: float       # 40% weight
-    section_completeness: float  # 20% weight
-    format_compatibility: float  # 20% weight
-    keyword_density: float     # 10% weight
-    action_verbs: float        # 10% weight
+    keyword_match: float
+    section_completeness: float
+    format_compatibility: float
+    keyword_density: float
+    action_verbs: float
 
 
 class AnalyzeResponse(BaseModel):
     overall_score: float
-    score_label: str           # "Excellent" | "Good" | "Fair" | "Poor"
+    score_label: str
     score_breakdown: ScoreBreakdown
     matched_keywords: List[KeywordMatch]
     missing_keywords: List[str]
@@ -51,3 +53,6 @@ class AnalyzeResponse(BaseModel):
     ai_suggestions: Optional[List[str]] = None
     word_count: int
     reading_ease: str
+    experience_level: str
+    resume_pages: int
+    page_verdict: str

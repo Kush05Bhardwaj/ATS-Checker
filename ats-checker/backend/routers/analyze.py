@@ -1,7 +1,6 @@
-"""
+﻿"""
 routers/analyze.py
-POST /api/analyze — Main ATS analysis endpoint.
-Accepts multipart form: resume file + job description text.
+POST /api/analyze
 """
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
@@ -24,14 +23,49 @@ ALLOWED_TYPES = {
     "application/msword": "docx",
 }
 
+VALID_LEVELS = {"fresher", "mid", "senior", "executive"}
+
+# Ideal page counts per level
+IDEAL_PAGES = {
+    "fresher":   {"min": 1, "max": 1},
+    "mid":       {"min": 1, "max": 2},
+    "senior":    {"min": 1, "max": 2},
+    "executive": {"min": 2, "max": 3},
+}
+
+def get_page_verdict(experience_level: str, resume_pages: int) -> str:
+    ideal = IDEAL_PAGES.get(experience_level, {"min": 1, "max": 2})
+    level_labels = {
+        "fresher": "Fresher",
+        "mid": "Mid-level",
+        "senior": "Senior",
+        "executive": "Executive",
+    }
+    label = level_labels.get(experience_level, experience_level.title())
+
+    if resume_pages < ideal["min"]:
+        return f" Too short for {label} — aim for at least {ideal['min']} page(s)"
+    elif resume_pages > ideal["max"]:
+        return f" Too long for {label} — keep it to {ideal['max']} page(s) max"
+    else:
+        return f" Ideal length for {label} ({resume_pages} page{'s' if resume_pages > 1 else ''})"
+
 
 @router.post("/analyze", response_model=AnalyzeResponse)
 async def analyze_resume(
     resume: UploadFile = File(...),
     job_description: str = Form(...),
     use_ai_suggestions: bool = Form(False),
+    experience_level: str = Form("mid"),
+    resume_pages: int = Form(1),
 ):
-    # ── 1. Validate file type ─────────────────────────────────────────────────
+    #  Validate experience level 
+    if experience_level not in VALID_LEVELS:
+        experience_level = "mid"
+
+    resume_pages = max(1, min(resume_pages, 10))
+
+    #  Validate file type 
     content_type = resume.content_type or ""
     file_ext = resume.filename.split(".")[-1].lower() if resume.filename else ""
 
@@ -42,14 +76,10 @@ async def analyze_resume(
     elif file_ext in ("docx", "doc"):
         file_type = "docx"
     else:
-        raise HTTPException(
-            status_code=400,
-            detail="Unsupported file type. Upload a PDF or DOCX resume."
-        )
+        raise HTTPException(status_code=400, detail="Unsupported file type. Upload a PDF or DOCX resume.")
 
-    # ── 2. Parse resume ───────────────────────────────────────────────────────
+    #  Parse resume 
     file_bytes = await resume.read()
-
     if file_type == "pdf":
         raw_text, file_warnings = parse_pdf(file_bytes)
     else:
@@ -58,64 +88,59 @@ async def analyze_resume(
     if not raw_text or len(raw_text.strip()) < 50:
         raise HTTPException(
             status_code=422,
-            detail="Could not extract text from resume. Make sure it's not image-only or password protected."
+            detail="Could not extract text from resume. Make sure it is not image-only or password protected."
         )
 
     resume_text = clean_text(raw_text)
     jd_text = clean_text(job_description)
 
-    # ── 3. NLP Processing ─────────────────────────────────────────────────────
+    #  NLP 
+    jd_keywords          = extract_keywords_tfidf(jd_text, top_n=40)
+    keyword_match_score  = compute_similarity_score(resume_text, jd_text)
+    matched_raw, missing = get_keyword_matches(resume_text, jd_keywords)
+    sections_raw         = detect_sections(resume_text)
+    action_verb_score    = analyze_action_verbs(resume_text)
+    density_score        = compute_keyword_density(resume_text, jd_text)
 
-    # Extract keywords from JD
-    jd_keywords = extract_keywords_tfidf(jd_text, top_n=40)
+    #  Format analysis (now page-aware) 
+    format_issues_raw, format_score = analyze_format(
+        resume_text, file_warnings, file_type,
+        experience_level=experience_level,
+        resume_pages=resume_pages,
+    )
 
-    # Cosine similarity score (0-100) → this IS our keyword_match score
-    keyword_match_score = compute_similarity_score(resume_text, jd_text)
-
-    # Which JD keywords appear in resume?
-    matched_raw, missing_keywords = get_keyword_matches(resume_text, jd_keywords)
-
-    # Section detection
-    sections_raw = detect_sections(resume_text)
-
-    # Action verb quality
-    action_verb_score = analyze_action_verbs(resume_text)
-
-    # Keyword density
-    density_score = compute_keyword_density(resume_text, jd_text)
-
-    # ── 4. Format Analysis ────────────────────────────────────────────────────
-    format_issues_raw, format_score = analyze_format(resume_text, file_warnings, file_type)
-
-    # ── 5. Final Score ────────────────────────────────────────────────────────
+    #  Scoring (experience-aware weights) 
     overall_score, breakdown = compute_final_score(
         keyword_match=keyword_match_score,
         sections=sections_raw,
         format_score=format_score,
         keyword_density=density_score,
         action_verbs=action_verb_score,
+        experience_level=experience_level,
     )
 
-    # ── 6. AI Suggestions (optional) ─────────────────────────────────────────
+    #  AI suggestions 
     ai_suggestions = None
     if use_ai_suggestions:
         ai_suggestions = get_ai_suggestions(
             resume_text=resume_text,
             jd_text=jd_text,
-            missing_keywords=missing_keywords,
+            missing_keywords=missing,
             overall_score=overall_score,
         )
 
-    # ── 7. Build Response ─────────────────────────────────────────────────────
     return AnalyzeResponse(
         overall_score=overall_score,
         score_label=get_score_label(overall_score),
         score_breakdown=ScoreBreakdown(**breakdown),
         matched_keywords=[KeywordMatch(**k) for k in matched_raw],
-        missing_keywords=missing_keywords[:20],
+        missing_keywords=missing[:20],
         sections=[SectionResult(**s) for s in sections_raw],
         format_issues=[FormatIssue(**f) for f in format_issues_raw],
         ai_suggestions=ai_suggestions,
         word_count=len(resume_text.split()),
         reading_ease=get_reading_ease(resume_text),
+        experience_level=experience_level,
+        resume_pages=resume_pages,
+        page_verdict=get_page_verdict(experience_level, resume_pages),
     )

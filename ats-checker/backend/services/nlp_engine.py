@@ -95,7 +95,7 @@ def extract_keywords_tfidf(text: str, top_n: int = 30) -> List[Tuple[str, float]
         feature_names = vectorizer.get_feature_names_out()
         scores = np.asarray(tfidf_matrix.mean(axis=0)).flatten()
         top_indices = scores.argsort()[-top_n:][::-1]
-        return [(feature_names[i], float(scores[i])) for i in top_indices]
+        return [(feature_names[i].replace('+', ' '), float(scores[i])) for i in top_indices]
     except Exception:
         # Fallback: simple word frequency
         words = re.findall(r'\b[a-z][a-z+#.\-]{2,}\b', text.lower())
